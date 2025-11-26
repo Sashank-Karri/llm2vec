@@ -1,45 +1,45 @@
 from peft import PeftModel
 from torch import nn
-from transformers import Qwen2Config, Qwen2ForCausalLM, Qwen2Model, Qwen2PreTrainedModel
+from transformers import Qwen3Config, Qwen3ForCausalLM, Qwen3Model, Qwen3PreTrainedModel
 from transformers.modeling_layers import GradientCheckpointingLayer
-from transformers.models.qwen2.modeling_qwen2 import (
-    Qwen2Attention,
-    Qwen2DecoderLayer,
-    Qwen2MLP,
-    Qwen2RMSNorm,
-    Qwen2RotaryEmbedding,
+from transformers.models.qwen3.modeling_qwen3 import (
+    Qwen3Attention,
+    Qwen3DecoderLayer,
+    Qwen3MLP,
+    Qwen3RMSNorm,
+    Qwen3RotaryEmbedding,
 )
 from transformers.utils import logging
 
 logger = logging.get_logger(__name__)
 
 
-class ModifiedQwen2Attention(Qwen2Attention):
+class ModifiedQwen3Attention(Qwen3Attention):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_causal = False
 
 
-class ModifiedQwen2DecoderLayer(Qwen2DecoderLayer):
-    def __init__(self, config: Qwen2Config, layer_idx: int):
+class ModifiedQwen3DecoderLayer(Qwen3DecoderLayer):
+    def __init__(self, config: Qwen3Config, layer_idx: int):
         GradientCheckpointingLayer.__init__(self)
         self.hidden_size = config.hidden_size
 
-        self.self_attn = ModifiedQwen2Attention(config=config, layer_idx=layer_idx)
+        self.self_attn = ModifiedQwen3Attention(config=config, layer_idx=layer_idx)
 
-        self.mlp = Qwen2MLP(config)
-        self.input_layernorm = Qwen2RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
-        self.post_attention_layernorm = Qwen2RMSNorm(
+        self.mlp = Qwen3MLP(config)
+        self.input_layernorm = Qwen3RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        self.post_attention_layernorm = Qwen3RMSNorm(
             config.hidden_size, eps=config.rms_norm_eps
         )
         self.attention_type = config.layer_types[layer_idx]
 
 
-class Qwen2BiModel(Qwen2Model):
-    _no_split_modules = ["ModifiedQwen2DecoderLayer"]
+class Qwen3BiModel(Qwen3Model):
+    _no_split_modules = ["ModifiedQwen3DecoderLayer"]
 
-    def __init__(self, config: Qwen2Config):
-        Qwen2PreTrainedModel.__init__(self, config)
+    def __init__(self, config: Qwen3Config):
+        Qwen3PreTrainedModel.__init__(self, config)
         self.padding_idx = config.pad_token_id
         self.vocab_size = config.vocab_size
 
@@ -48,12 +48,12 @@ class Qwen2BiModel(Qwen2Model):
         )
         self.layers = nn.ModuleList(
             [
-                ModifiedQwen2DecoderLayer(config, layer_idx)
+                ModifiedQwen3DecoderLayer(config, layer_idx)
                 for layer_idx in range(config.num_hidden_layers)
             ]
         )
-        self.norm = Qwen2RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
-        self.rotary_emb = Qwen2RotaryEmbedding(config=config)
+        self.norm = Qwen3RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        self.rotary_emb = Qwen3RotaryEmbedding(config=config)
         self.gradient_checkpointing = False
         self.has_sliding_layers = "sliding_attention" in self.config.layer_types
 
@@ -61,10 +61,10 @@ class Qwen2BiModel(Qwen2Model):
         self.post_init()
 
 
-class Qwen2BiForMNTP(Qwen2ForCausalLM):
+class Qwen3BiForMNTP(Qwen3ForCausalLM):
     def __init__(self, config):
-        Qwen2PreTrainedModel.__init__(self, config)
-        self.model = Qwen2BiModel(config)
+        Qwen3PreTrainedModel.__init__(self, config)
+        self.model = Qwen3BiModel(config)
         self.vocab_size = config.vocab_size
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
 

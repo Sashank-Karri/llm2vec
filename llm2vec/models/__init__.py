@@ -1,4 +1,3 @@
-from .bidirectional_mistral import MistralBiModel, MistralBiForMNTP
-from .bidirectional_llama import LlamaBiModel, LlamaBiForMNTP
-from .bidirectional_gemma import GemmaBiModel, GemmaBiForMNTP
-from .bidirectional_qwen2 import Qwen2BiModel, Qwen2BiForMNTP
+from .bidirectional_llama import LlamaBiForMNTP, LlamaBiModel
+from .bidirectional_qwen2 import Qwen2BiForMNTP, Qwen2BiModel
+from .bidirectional_qwen3 import Qwen3BiForMNTP, Qwen3BiModel

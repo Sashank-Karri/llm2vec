@@ -1,4 +1,4 @@
-from peft.peft_model import PeftModel
+from peft import PeftModel
 from torch import nn
 from transformers import LlamaConfig, LlamaForCausalLM, LlamaModel, LlamaPreTrainedModel
 from transformers.modeling_layers import GradientCheckpointingLayer

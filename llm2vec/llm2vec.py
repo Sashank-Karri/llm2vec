@@ -11,21 +11,21 @@ from peft import PeftModel
 from torch import Tensor, device, nn
 from tqdm.autonotebook import tqdm, trange
 from transformers import (
-    AutoModel,
     AutoConfig,
-    PretrainedConfig,
+    AutoModel,
     AutoTokenizer,
+    GemmaConfig,
     LlamaConfig,
     MistralConfig,
-    GemmaConfig,
+    PretrainedConfig,
     Qwen2Config,
+    Qwen3Config,
 )
 
 from .models import (
-    MistralBiModel,
     LlamaBiModel,
-    GemmaBiModel,
     Qwen2BiModel,
+    Qwen3BiModel,
 )
 
 logger = logging.getLogger(__name__)
@@ -72,6 +72,8 @@ class LLM2Vec(nn.Module):
             return GemmaBiModel
         elif config_class_name == "Qwen2Config":
             return Qwen2BiModel
+        elif config_class_name == "Qwen3Config":
+            return Qwen3BiModel
         else:
             raise ValueError(
                 f"{config_class_name} is not supported yet with bidirectional models."
@@ -145,37 +147,36 @@ class LLM2Vec(nn.Module):
         return cls(model=model, tokenizer=tokenizer, **config)
 
     def prepare_for_tokenization(self, text):
-        if self.model.config._name_or_path == "meta-llama/Meta-Llama-3-8B-Instruct":
+        if self.config._name_or_path == "meta-llama/Meta-Llama-3-8B-Instruct":
             text = (
                 "<|start_header_id|>user<|end_header_id|>\n\n"
                 + text.strip()
                 + "<|eot_id|>"
             )
             return text
-        if self.model.config._name_or_path in [
+        if self.config._name_or_path in [
             "mistralai/Mistral-7B-Instruct-v0.2",
             "meta-llama/Llama-2-7b-chat-hf",
         ]:
             text = "[INST] " + text.strip() + " [/INST]"
-        if self.model.config._name_or_path in [
+        if self.config._name_or_path in [
             "google/gemma-2-9b-it",
         ]:
             text = "<bos><start_of_turn>user\n" + text.strip() + "<end_of_turn>"
-        if self.model.config._name_or_path in [
-            "Qwen/Qwen2-1.5B-Instruct",
-            "Qwen/Qwen2-7B-Instruct",
-        ]:
+        if isinstance(self.config, Qwen2Config) or isinstance(self.config, Qwen3Config):
             text = "<|im_start|>user\n" + text.strip() + "<|im_end|>"
         if self.pooling_mode == "eos_token":
-            if self.model.config._name_or_path == "meta-llama/Meta-Llama-3-8B":
+            if self.config._name_or_path == "meta-llama/Meta-Llama-3-8B":
                 text = text.strip() + "<|end_of_text|>"
-            elif isinstance(self.model.config, LlamaConfig) or isinstance(
-                self.model.config, MistralConfig
+            elif isinstance(self.config, LlamaConfig) or isinstance(
+                self.config, MistralConfig
             ):
                 text = text.strip() + " </s>"
-            elif isinstance(self.model.config, GemmaConfig):
+            elif isinstance(self.config, GemmaConfig):
                 text = text.strip() + "<eos>"
-            elif isinstance(self.model.config, Qwen2Config):
+            elif isinstance(self.config, Qwen2Config) or isinstance(
+                self.config, Qwen3Config
+            ):
                 text = text.strip() + "<|endoftext|>"
         return text
 
