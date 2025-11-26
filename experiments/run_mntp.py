@@ -24,15 +24,15 @@ import sys
 import warnings
 from dataclasses import dataclass, field
 from itertools import chain
-from typing import Optional, Any, Tuple, List
-import numpy as np
+from typing import Any, List, Optional, Tuple
 
 import datasets
 import evaluate
-from datasets import load_dataset
-
 import torch
 import transformers
+from datasets import load_dataset
+from peft import LoraConfig
+from peft.mapping import get_peft_model
 from transformers import (
     CONFIG_MAPPING,
     MODEL_FOR_MASKED_LM_MAPPING,
@@ -41,9 +41,8 @@ from transformers import (
     DataCollatorForLanguageModeling,
     HfArgumentParser,
     Trainer,
-    TrainingArguments,
     TrainerCallback,
-    is_torch_tpu_available,
+    TrainingArguments,
     set_seed,
 )
 from transformers.trainer_utils import get_last_checkpoint
@@ -121,7 +120,7 @@ def initialize_peft(
     )
 
     model = get_peft_model(model, config)
-    print(f"Model's Lora trainable parameters:")
+    print("Model's Lora trainable parameters:")
     model.print_trainable_parameters()
     return model
 
@@ -186,7 +185,7 @@ class ModelArguments:
             "help": "The specific model version to use (can be a branch name, tag name or commit id)."
         },
     )
-    token: str = field(
+    token: Optional[str] = field(
         default=None,
         metadata={
             "help": (
@@ -195,7 +194,7 @@ class ModelArguments:
             )
         },
     )
-    use_auth_token: bool = field(
+    use_auth_token: Optional[bool] = field(
         default=None,
         metadata={
             "help": "The `use_auth_token` argument is deprecated and will be removed in v4.34. Please use `token` instead."
@@ -921,15 +920,9 @@ def main():
         eval_dataset=eval_dataset if training_args.do_eval else None,
         tokenizer=tokenizer,
         data_collator=data_collator,
-        compute_metrics=(
-            compute_metrics
-            if training_args.do_eval and not is_torch_tpu_available()
-            else None
-        ),
+        compute_metrics=(compute_metrics if training_args.do_eval else None),
         preprocess_logits_for_metrics=(
-            preprocess_logits_for_metrics
-            if training_args.do_eval and not is_torch_tpu_available()
-            else None
+            preprocess_logits_for_metrics if training_args.do_eval else None
         ),
     )
 

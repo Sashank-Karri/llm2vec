@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 package_name = "llm2vec"
 version = {}
@@ -12,7 +12,7 @@ setup(
     name="llm2vec",
     version=version["__version__"],
     author="McGill NLP",
-    author_email=f"parishad.behnamghader@mila.quebec",
+    author_email="parishad.behnamghader@mila.quebec",
     url=f"https://github.com/McGill-NLP/{package_name}",
     description=f"The official {package_name} library",
     python_requires=">=3.8",
@@ -22,7 +22,7 @@ setup(
         "tqdm",
         "torch",
         "peft",
-        "transformers>=4.43.1,<=4.44.2",
+        "transformers~=4.56.2",
         "datasets",
         "evaluate",
         "scikit-learn",
