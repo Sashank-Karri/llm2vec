@@ -211,6 +211,8 @@ class LLM2Vec(nn.Module):
                     e_m[-len(ids["input_ids"][0]) :] = torch.ones(
                         len(ids["input_ids"][0])
                     )
+                else:
+                    e_m = original["attention_mask"][t_i]
                 embed_mask = e_m.unsqueeze(0)
             else:
                 e_m = torch.zeros_like(original["attention_mask"][t_i])
@@ -218,6 +220,8 @@ class LLM2Vec(nn.Module):
                     e_m[-len(ids["input_ids"][0]) :] = torch.ones(
                         len(ids["input_ids"][0])
                     )
+                else:
+                    e_m = original["attention_mask"][t_i]
                 embed_mask = torch.cat((embed_mask, e_m.unsqueeze(0)), dim=0)
 
         original["embed_mask"] = embed_mask
