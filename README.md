@@ -16,6 +16,8 @@ LLM2Vec is a simple recipe to convert decoder-only LLMs into text encoders. It c
 
 **************************** **Updates** ****************************
 
+* 04/04/26: We released LLM2Vec-Gen🚀, a recipe to train interpretable, generative embeddings that encode the potential answer of an LLM to a query rather than the query itself! Please checkout our 📄[paper](https://arxiv.org/abs/2603.10913), 💻[GitHub repository](https://github.com/McGill-NLP/llm2vec-gen),and 🤗[HF models](https://huggingface.co/McGill-NLP/LLM2Vec-Gen-Qwen3-8B) for more information.
+
 * 03/10: Added support for latest transformer versions, which support Llama 3.1, 3.2 and other latest models. Expanded support to evaluate any LLM2vec model, check [mteb_eval_custom.py](https://github.com/McGill-NLP/llm2vec/blob/main/experiments/mteb_eval_custom.py)
 
 * 04/07: Added support for Gemma and Qwen-2 models, huge thanks to [@bzantium](https://github.com/bzantium) for the contribution.
