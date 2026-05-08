@@ -1,5 +1,6 @@
 import torch
 
+from packaging import version
 from transformers import LlamaModel, LlamaForCausalLM, LlamaPreTrainedModel, LlamaConfig
 from transformers.models.llama.modeling_llama import (
     LlamaDecoderLayer,
@@ -8,7 +9,7 @@ from transformers.models.llama.modeling_llama import (
     LlamaRMSNorm,
     LlamaRotaryEmbedding,
 )
-
+from transformers.modeling_layers import GradientCheckpointingLayer
 from torch import nn
 from transformers.utils import logging
 from transformers.cache_utils import Cache, StaticCache
@@ -48,7 +49,8 @@ class ModifiedLlamaAttention(LlamaAttention):
 
 class ModifiedLlamaDecoderLayer(LlamaDecoderLayer):
     def __init__(self, config: LlamaConfig, layer_idx: int):
-        nn.Module.__init__(self)
+        GradientCheckpointingLayer.__init__(self)
+        # nn.Module.__init__(self)
         self.hidden_size = config.hidden_size
 
         self.self_attn = ModifiedLlamaAttention(

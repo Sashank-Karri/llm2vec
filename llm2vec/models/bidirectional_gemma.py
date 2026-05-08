@@ -4,6 +4,7 @@ from packaging import version
 import importlib.metadata
 
 from transformers import GemmaModel, GemmaForCausalLM, GemmaPreTrainedModel, GemmaConfig
+from transformers.modeling_layers import GradientCheckpointingLayer
 from transformers.models.gemma.modeling_gemma import (
     GemmaDecoderLayer,
     GemmaAttention,
@@ -59,7 +60,8 @@ class ModifiedGemmaAttention(GemmaAttention):
 
 class ModifiedGemmaDecoderLayer(GemmaDecoderLayer):
     def __init__(self, config: GemmaConfig, layer_idx: int):
-        nn.Module.__init__(self)
+        GradientCheckpointingLayer.__init__(self)
+        # nn.Module.__init__(self)
         self.hidden_size = config.hidden_size
 
         self.self_attn = ModifiedGemmaAttention(

@@ -6,6 +6,7 @@ from transformers import (
     MistralForCausalLM,
     MistralConfig,
 )
+from transformers.modeling_layers import GradientCheckpointingLayer
 from transformers.models.mistral.modeling_mistral import (
     MistralDecoderLayer,
     MistralRMSNorm,
@@ -51,7 +52,8 @@ class ModifiedMistralAttention(MistralAttention):
 
 class ModifiedMistralDecoderLayer(MistralDecoderLayer):
     def __init__(self, config: MistralConfig, layer_idx: int):
-        nn.Module.__init__(self)
+        GradientCheckpointingLayer.__init__(self)
+        # nn.Module.__init__(self)
         self.hidden_size = config.hidden_size
 
         self.self_attn = ModifiedMistralAttention(
