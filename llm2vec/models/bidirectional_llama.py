@@ -4,8 +4,6 @@ from transformers import LlamaModel, LlamaForCausalLM, LlamaPreTrainedModel, Lla
 from transformers.models.llama.modeling_llama import (
     LlamaDecoderLayer,
     LlamaAttention,
-    LlamaFlashAttention2,
-    LlamaSdpaAttention,
     LlamaMLP,
     LlamaRMSNorm,
     LlamaRotaryEmbedding,
@@ -29,23 +27,23 @@ class ModifiedLlamaAttention(LlamaAttention):
         self.is_causal = False
 
 
-class ModifiedLlamaFlashAttention2(LlamaFlashAttention2):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.is_causal = False
+# class ModifiedLlamaFlashAttention2(LlamaFlashAttention2):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.is_causal = False
 
 
-class ModifiedLlamaSdpaAttention(LlamaSdpaAttention):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.is_causal = False
+# class ModifiedLlamaSdpaAttention(LlamaSdpaAttention):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.is_causal = False
 
 
-LLAMA_ATTENTION_CLASSES = {
-    "eager": ModifiedLlamaAttention,
-    "flash_attention_2": ModifiedLlamaFlashAttention2,
-    "sdpa": ModifiedLlamaSdpaAttention,
-}
+# LLAMA_ATTENTION_CLASSES = {
+#     "eager": ModifiedLlamaAttention,
+#     "flash_attention_2": ModifiedLlamaFlashAttention2,
+#     "sdpa": ModifiedLlamaSdpaAttention,
+# }
 
 
 class ModifiedLlamaDecoderLayer(LlamaDecoderLayer):
@@ -53,7 +51,7 @@ class ModifiedLlamaDecoderLayer(LlamaDecoderLayer):
         nn.Module.__init__(self)
         self.hidden_size = config.hidden_size
 
-        self.self_attn = LLAMA_ATTENTION_CLASSES[config._attn_implementation](
+        self.self_attn = ModifiedLlamaAttention(
             config=config, layer_idx=layer_idx
         )
 
