@@ -1,7 +1,9 @@
 from typing import List, Optional, Tuple, Union
 import torch
+from packaging import version
 
 from transformers import Qwen2Model, Qwen2ForCausalLM, Qwen2PreTrainedModel, Qwen2Config
+from transformers.modeling_layers import GradientCheckpointingLayer
 from transformers.modeling_outputs import BaseModelOutputWithPast
 from transformers.cache_utils import Cache, DynamicCache
 from transformers.models.qwen2.modeling_qwen2 import (
@@ -49,7 +51,8 @@ class ModifiedQwen2Attention(Qwen2Attention):
 
 class ModifiedQwen2DecoderLayer(Qwen2DecoderLayer):
     def __init__(self, config: Qwen2Config, layer_idx: int):
-        nn.Module.__init__(self)
+        GradientCheckpointingLayer.__init__(self)
+        # nn.Module.__init__(self)
         self.hidden_size = config.hidden_size
 
         self.self_attn = ModifiedQwen2Attention(
